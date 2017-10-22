@@ -19,7 +19,7 @@ object EvaluateRandom extends App {
   val right_b = BanditFactory.uniform(1.0, 10.0)
   val env = BanditEnvironment(left_b, right_b)
   val policy = RandomPolicy()
-  val policyevaluator: PolicyEvaluator = new PolicyEvaluator()
+  val policyevaluator: PolicyEvaluation = new PolicyEvaluation()
   val policy_value = policyevaluator.evaluate(env, policy, 10000)
   println(policy_value)
 }
@@ -29,7 +29,7 @@ object EvaluateAlwaysLeft extends App {
   val right_b = BanditFactory.uniform(1.0, 10.0)
   val env = BanditEnvironment(left_b, right_b)
   val policy = AlwaysLeftBanditPolicy()
-  val policyevaluator: PolicyEvaluator = new PolicyEvaluator()
+  val policyevaluator: PolicyEvaluation = new PolicyEvaluation()
   val policy_value = policyevaluator.evaluate(env, policy, 100)
   println(policy_value)
 }

@@ -10,6 +10,8 @@ case class BanditEnvironment(left_bandit: Bandit, right_bandit: Bandit) extends 
     }
   }
   def state: State = BanditState
+
+  override def possible_actions: List[Action] = List(Left(), Right())
 }
 
 class BanditEnvironmentSpec extends FlatSpec with Matchers {
