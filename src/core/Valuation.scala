@@ -2,12 +2,12 @@ package core
 
 import org.scalatest.{FlatSpec, Matchers}
 
-trait Valuation {
+trait Memory {
+  def observe_outcome(state: State, action: Action, outcome: Outcome): Unit
   def value_of(state: State, action: Action): Double
-  def observe_outcome(state: State, action: Action, outcome: Outcome)
 }
 
-trait LookupValuation extends Valuation {
+trait LookupMemory extends Memory  {
   var lookup: Map[(State, Action), (Double, Int)]
   val default: Double
   val default_weight: Int
@@ -15,7 +15,7 @@ trait LookupValuation extends Valuation {
     lookup.getOrElse((state, action), (default, default_weight))._1
   }}
 
-case class MeanObservedLookup(default: Double, default_weight: Int = 0) extends LookupValuation{
+case class MeanObservedLookupMemory(default: Double, default_weight: Int = 0) extends LookupMemory {
   var lookup : Map[(State, Action), (Double, Int)] = Map[(State, Action), (Double, Int)]()
 
   override def observe_outcome(state: State, action: Action, outcome: Outcome): Unit = {
@@ -26,7 +26,7 @@ case class MeanObservedLookup(default: Double, default_weight: Int = 0) extends 
   }
 }
 
-case class RecencyWeightedLookup(default: Double, default_weight: Int = 0) extends LookupValuation{
+case class RecencyWeightedLookupMemory(default: Double, default_weight: Int = 0) extends LookupMemory {
   var lookup : Map[(State, Action), (Double, Int)] = Map[(State, Action), (Double, Int)]()
 
   override def observe_outcome(state: State, action: Action, outcome: Outcome): Unit = {
@@ -38,17 +38,17 @@ case class RecencyWeightedLookup(default: Double, default_weight: Int = 0) exten
 
 class MeanObservedLookupSpec extends FlatSpec with Matchers {
   "The lookup " should " return the default for unseen state action pairs " in {
-    MeanObservedLookup(10.0).value_of(MockState(), MockAction()) should be (10.0)
+    MeanObservedLookupMemory(10.0).value_of(MockState(), MockAction()) should be (10.0)
   }
 
   "The lookup " should " return the only observed value if one observation" in {
-    val lookup = MeanObservedLookup(10.0)
+    val lookup = MeanObservedLookupMemory(10.0)
     lookup.observe_outcome(MockState(), MockAction(), Outcome(MockEnvironment(), 3.0))
     lookup.value_of(MockState(), MockAction()) should be (3.0)
   }
 
   "The lookup " should " accurately record the observed mean " in {
-    val lookup = MeanObservedLookup(10.0)
+    val lookup = MeanObservedLookupMemory(10.0)
     lookup.observe_outcome(MockState(), MockAction(), Outcome(MockEnvironment(), 3.0))
     lookup.observe_outcome(MockState(), MockAction(), Outcome(MockEnvironment(), 6.0))
     lookup.observe_outcome(MockState(), MockAction(), Outcome(MockEnvironment(), 9.0))
